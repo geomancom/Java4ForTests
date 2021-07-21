@@ -25,13 +25,13 @@ import java.util.ArrayList;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static ru.gb_dz2.utils.CommonAsserts.*;
+import static ru.gb_dz2.utils.CommonLog.*;
 
 @Slf4j
 public class GetProductTests {
     static Retrofit client;
     static ProductService productService;
-    static Retrofit client2;
-    static ProductService productService2;
     static CategoryService categoryService;
     Faker faker = new Faker();
     Product product;
@@ -65,17 +65,15 @@ public class GetProductTests {
         //Создаем
         Response<Product> response = productService.createProduct(product).execute();
         productId = response.body().getId();
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
-        log.info(String.valueOf(response.body().getId()));
+        logGetFull(response);
         //Проверяем что продукт создан
         Response<Product> responseGet = productService.getProduct(productId).execute();
-        log.info(String.valueOf(responseGet.code()));
-        log.info(responseGet.body().toString());
-        assertThat(productsMapperGet.selectByPrimaryKey((long) productId).getId().intValue(), equalTo(productId));
-        assertThat(categoriesMapperGet.selectByPrimaryKey(productsMapperGet.selectByPrimaryKey(Long.valueOf(productId)).getCategory_id().intValue()).getTitle(), equalTo(product.getCategoryTitle()));
+        logGetBasic(responseGet);
+        assertGetProductIdCategoryId(productId, product, productsMapperGet, categoriesMapperGet);
 
     }
+
+
 
     //4.2.0. Получение данных по несуществующему ID
     @Test
@@ -83,16 +81,13 @@ public class GetProductTests {
         //Создаем
         Response<Product> response = productService.createProduct(product).execute();
         productId = response.body().getId();
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
-        log.info(String.valueOf(response.body().getId()));
+        logGetFull(response);
         //Проверяем что продукт создан
         Response<Product> responseGet1 = productService.getProduct(productId).execute();
-        log.info(String.valueOf(responseGet1.code()));
-        log.info(responseGet1.body().toString());
-        assertThat(productsMapperGet.selectByPrimaryKey((long) productId).getTitle(), equalTo(product.getTitle()));
-        assertThat(productsMapperGet.selectByPrimaryKey((long) productId).getPrice(), equalTo(product.getPrice()));
-        assertThat(categoriesMapperGet.selectByPrimaryKey(productsMapperGet.selectByPrimaryKey(Long.valueOf(productId)).getCategory_id().intValue()).getTitle(), equalTo(product.getCategoryTitle()));
+        logGetBasic(responseGet1);
+        assertGetProductTitle(productId, product, productsMapperGet);
+        assertGetProductPrice(productId, product, productsMapperGet);
+        assertGetProductIdCategoryId(productId, product, productsMapperGet, categoriesMapperGet);
         //Проверяем что продукт ИД+100 не существует
         Response<Product> responseGet2 = productService.getProduct(productId + 100).execute();
         log.info(String.valueOf(responseGet2.code()));
@@ -105,6 +100,7 @@ public class GetProductTests {
         }
 
     }
+
 
     //4.3.0. Получение данных без ID
     @Test

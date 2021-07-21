@@ -5,14 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import retrofit2.Converter;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import ru.gb_dz2.db.dao.CategoriesMapper;
 import ru.gb_dz2.db.dao.ProductsMapper;
-import ru.gb_dz2.dto.Category;
 import ru.gb_dz2.dto.ErrorBody;
 import ru.gb_dz2.dto.Product;
 import ru.gb_dz2.enums.CategoryType;
@@ -26,7 +24,8 @@ import java.lang.annotation.Annotation;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static ru.gb_dz2.utils.CommonAsserts.*;
+import static ru.gb_dz2.utils.CommonLog.logGetBasic;
 
 @Slf4j
 public class PostNegativeProductTests {
@@ -57,12 +56,12 @@ public class PostNegativeProductTests {
 
         Response<Product> response = productService.createProduct(product).execute();
         assert response.code() == 201;
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
+        logGetBasic(response);
         productId = response.body().getId();
         assertThat(productsMapper.selectByPrimaryKey((long) productId).getTitle(), equalTo(null));
-        assertThat(productsMapper.selectByPrimaryKey((long) productId).getPrice(), equalTo(product.getPrice()));
-        assertThat(categoriesMapper.selectByPrimaryKey(productsMapper.selectByPrimaryKey(Long.valueOf(productId)).getCategory_id().intValue()).getTitle(), equalTo(product.getCategoryTitle()));
+        assertGetProductPrice(productId, product, productsMapper);
+        assertGetProductIdCategoryId(productId, product, productsMapper, categoriesMapper);
+
     }
 
     //1.2.1. Новый продукт без цены - Создается, нужно заводить баг / или уточнить в документации
@@ -74,12 +73,11 @@ public class PostNegativeProductTests {
 
         Response<Product> response = productService.createProduct(product).execute();
         assert response.code() == 201;
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
+        logGetBasic(response);
         productId = response.body().getId();
-        assertThat(productsMapper.selectByPrimaryKey((long) productId).getTitle(), equalTo(product.getTitle()));
         assertThat(productsMapper.selectByPrimaryKey((long) productId).getPrice(), equalTo(0));
-        assertThat(categoriesMapper.selectByPrimaryKey(productsMapper.selectByPrimaryKey(Long.valueOf(productId)).getCategory_id().intValue()).getTitle(), equalTo(product.getCategoryTitle()));
+        assertGetProductTitle(productId, product, productsMapper);
+        assertGetProductIdCategoryId(productId, product, productsMapper, categoriesMapper);
 
     }
 
@@ -93,12 +91,12 @@ public class PostNegativeProductTests {
 
         Response<Product> response = productService.createProduct(product).execute();
         assert response.code() == 201;
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
+        logGetBasic(response);
         productId = response.body().getId();
-        assertThat(productsMapper.selectByPrimaryKey((long) productId).getTitle(), equalTo(product.getTitle()));
         assert productsMapper.selectByPrimaryKey((long) productId).getPrice() < 0;
-        assertThat(categoriesMapper.selectByPrimaryKey(productsMapper.selectByPrimaryKey(Long.valueOf(productId)).getCategory_id().intValue()).getTitle(), equalTo(product.getCategoryTitle()));
+        assertGetProductTitle(productId, product, productsMapper);
+        assertGetProductIdCategoryId(productId, product, productsMapper, categoriesMapper);
+
 
     }
 
@@ -112,11 +110,11 @@ public class PostNegativeProductTests {
 
         Response<Product> response = productService.createProduct(product).execute();
         assert response.code() == 201;
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
+        logGetBasic(response);
         productId = response.body().getId();
-        assertThat(productsMapper.selectByPrimaryKey((long) productId).getTitle(), equalTo(product.getTitle()));
-        assertThat(categoriesMapper.selectByPrimaryKey(productsMapper.selectByPrimaryKey(Long.valueOf(productId)).getCategory_id().intValue()).getTitle(), equalTo(product.getCategoryTitle()));
+        assertGetProductTitle(productId, product, productsMapper);
+        assertGetProductIdCategoryId(productId, product, productsMapper, categoriesMapper);
+
     }
 
     //1.2.4. Новый продукт с предельной ценой +1 - Создается, нужно заводить баг / запредельная цена становится отрицательной
@@ -129,12 +127,12 @@ public class PostNegativeProductTests {
 
         Response<Product> response = productService.createProduct(product).execute();
         assert response.code() == 201;
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
+        logGetBasic(response);
         productId = response.body().getId();
-        assertThat(productsMapper.selectByPrimaryKey((long) productId).getTitle(), equalTo(product.getTitle()));
-        assertThat(productsMapper.selectByPrimaryKey((long) productId).getPrice(), equalTo(product.getPrice()));
-        assertThat(categoriesMapper.selectByPrimaryKey(productsMapper.selectByPrimaryKey(Long.valueOf(productId)).getCategory_id().intValue()).getTitle(), equalTo(product.getCategoryTitle()));
+        assertGetProductTitle(productId, product, productsMapper);
+        assertGetProductPrice(productId, product, productsMapper);
+        assertGetProductIdCategoryId(productId, product, productsMapper, categoriesMapper);
+
     }
 
     //1.2.5. Новый продукт c ценой = 0 - Создается, нужно заводить баг / или уточнить в документации
@@ -147,12 +145,11 @@ public class PostNegativeProductTests {
 
         Response<Product> response = productService.createProduct(product).execute();
         assert response.code() == 201;
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
+        logGetBasic(response);
         productId = response.body().getId();
-        assertThat(productsMapper.selectByPrimaryKey((long) productId).getTitle(), equalTo(product.getTitle()));
         assertThat(productsMapper.selectByPrimaryKey((long) productId).getPrice(), equalTo(0));
-        assertThat(categoriesMapper.selectByPrimaryKey(productsMapper.selectByPrimaryKey(Long.valueOf(productId)).getCategory_id().intValue()).getTitle(), equalTo(product.getCategoryTitle()));
+        assertGetProductTitle(productId, product, productsMapper);
+        assertGetProductIdCategoryId(productId, product, productsMapper, categoriesMapper);
 
     }
 

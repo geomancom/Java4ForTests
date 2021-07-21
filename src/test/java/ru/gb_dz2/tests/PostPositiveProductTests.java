@@ -13,7 +13,6 @@ import ru.gb_dz2.db.dao.CategoriesMapper;
 import ru.gb_dz2.db.dao.ProductsMapper;
 import ru.gb_dz2.dto.Product;
 import ru.gb_dz2.enums.CategoryType;
-import ru.gb_dz2.dto.Category;
 import ru.gb_dz2.service.CategoryService;
 import ru.gb_dz2.service.ProductService;
 import ru.gb_dz2.utils.DbUtils;
@@ -23,6 +22,8 @@ import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static ru.gb_dz2.utils.CommonAsserts.*;
+import static ru.gb_dz2.utils.CommonLog.logGetBasic;
 
 @Slf4j
 public class PostPositiveProductTests {
@@ -56,11 +57,12 @@ public class PostPositiveProductTests {
     @Test
     void postProductTest() throws IOException {
         Response<Product> response = productService.createProduct(product).execute();
-        log.info(response.body().toString());
+        logGetBasic(response);
         productId = response.body().getId();
-        assertThat(productsMapper.selectByPrimaryKey((long) productId).getTitle(), equalTo(product.getTitle()));
-        assertThat(productsMapper.selectByPrimaryKey((long) productId).getPrice(), equalTo(product.getPrice()));
-        assertThat(categoriesMapper.selectByPrimaryKey(productsMapper.selectByPrimaryKey(Long.valueOf(productId)).getCategory_id().intValue()).getTitle(), equalTo(product.getCategoryTitle()));
+        assertGetProductTitle(productId, product, productsMapper);
+        assertGetProductPrice(productId, product, productsMapper);
+        assertGetProductIdCategoryId(productId, product, productsMapper, categoriesMapper);
+
     }
 
     @AfterEach

@@ -21,13 +21,13 @@ import java.lang.annotation.Annotation;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static ru.gb_dz2.utils.CommonLog.logGetBasic;
+import static ru.gb_dz2.utils.CommonLog.logGetFull;
 
 @Slf4j
 public class DeleteProductTests {
     static Retrofit client;
     static ProductService productService;
-    static Retrofit client2;
-    static ProductService productService2;
     static CategoryService categoryService;
     Faker faker = new Faker();
     Product product;
@@ -57,12 +57,9 @@ public class DeleteProductTests {
     void deleteProductTest() throws IOException {
         Response<Product> response = productService.createProduct(product).execute();
         productId = response.body().getId();
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
-        log.info(String.valueOf(response.body().getId()));
+        logGetFull(response);
         Response<Product> responseGet1 = productService.getProduct(productId).execute();
-        log.info(String.valueOf(responseGet1.code()));
-        log.info(responseGet1.body().toString());
+        logGetBasic(responseGet1);
         productService.deleteProduct(productId).execute();
         Response<Product> responseGet2 = productService.getProduct(productId).execute();
         log.info(String.valueOf(responseGet2.code()));
@@ -83,13 +80,10 @@ public class DeleteProductTests {
         //Создаем
         Response<Product> response = productService.createProduct(product).execute();
         productId = response.body().getId();
-        log.info(String.valueOf(response.code()));
-        log.info(response.body().toString());
-        log.info(String.valueOf(response.body().getId()));
+        logGetFull(response);
         //Проверяем что продукт создан
         Response<Product> responseGet1 = productService.getProduct(productId).execute();
-        log.info(String.valueOf(responseGet1.code()));
-        log.info(responseGet1.body().toString());
+        logGetBasic(responseGet1);
         //Проверяем что продукт ИД+100 не существует
         Response<Product> responseGet2 = productService.getProduct(productId+100).execute();
         log.info(String.valueOf(responseGet2.code()));

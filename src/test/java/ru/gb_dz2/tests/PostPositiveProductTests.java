@@ -2,36 +2,47 @@ package ru.gb_dz2.tests;
 
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.ResponseBody;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import ru.gb_dz2.db.dao.CategoriesMapper;
+import ru.gb_dz2.db.dao.ProductsMapper;
 import ru.gb_dz2.dto.Product;
 import ru.gb_dz2.enums.CategoryType;
-import ru.gb_dz2.dto.Category;
 import ru.gb_dz2.service.CategoryService;
 import ru.gb_dz2.service.ProductService;
+import ru.gb_dz2.utils.DbUtils;
 import ru.gb_dz2.utils.RetrofitUtils;
 
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static ru.gb_dz2.utils.CommonAsserts.*;
+import static ru.gb_dz2.utils.CommonLog.logGetBasic;
 
 @Slf4j
 public class PostPositiveProductTests {
+    int productId;
     static Retrofit client;
     static ProductService productService;
     static CategoryService categoryService;
     Faker faker = new Faker();
     Product product;
+    static ProductsMapper productsMapper;
+    static CategoriesMapper categoriesMapper;
 
     @BeforeAll
     static void beforeAll() {
         client = RetrofitUtils.getRetrofit();
         productService = client.create(ProductService.class);
         categoryService = client.create(CategoryService.class);
+        productsMapper = DbUtils.getProductsMapper();
+        categoriesMapper = DbUtils.getCategoriesMapper();
     }
 
     @BeforeEach
@@ -46,19 +57,21 @@ public class PostPositiveProductTests {
     @Test
     void postProductTest() throws IOException {
         Response<Product> response = productService.createProduct(product).execute();
-        assertThat(response.body().getTitle(), equalTo(product.getTitle()));
-        assertThat(response.body().getPrice(), equalTo(product.getPrice()));
-        assertThat(response.body().getCategoryTitle(), equalTo(product.getCategoryTitle()));
-        log.info(response.body().toString());
+        logGetBasic(response);
+        productId = response.body().getId();
+        assertGetProductTitle(productId, product, productsMapper);
+        assertGetProductPrice(productId, product, productsMapper);
+        assertGetProductIdCategoryId(productId, product, productsMapper, categoriesMapper);
+
     }
 
-    @Test
-    void getCategoryByIdTest() throws IOException {
-        Integer id = CategoryType.FOOD.getId();
-        Response<Category> response = categoryService
-                .getCategory(id)
-                .execute();
-        assertThat(response.body().getTitle(), equalTo(CategoryType.FOOD.getTitle()));
-        assertThat(response.body().getId(), equalTo(id));
+    @AfterEach
+    void tearDown() throws IOException {
+        Response<ResponseBody> responseDel = productService.deleteProduct(productId).execute();
+        assertThat(responseDel.isSuccessful(), is(true));
+        //Проверяем что продукт удален
+        Response<Product> responseGet = productService.getProduct(productId).execute();
+        log.info(String.valueOf(responseGet.code()));
+        assert responseGet.code() == 404;
     }
 }

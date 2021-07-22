@@ -56,16 +56,45 @@
                     <reportVersion>2.14.0</reportVersion>
                 </configuration>
             </plugin>
+            <!-- it is used for DB objects (dao, mappers) generation -->
+            <plugin>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <executions>
+                    <execution>
+                        <id>Generate MyBatis Artifacts</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <!-- END it is used for DB objects (dao, mappers) generation -->
     </build>
-<dependencies>
-    <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>5.7.0</version>
-        <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit -->
+    <dependencies>
+        <dependency>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter</artifactId>
+                    <version>5.7.0</version>
+                    <scope>test</scope>
+                </dependency>
+                <!-- https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit -->
     <dependency>
         <groupId>com.squareup.retrofit2</groupId>
         <artifactId>retrofit</artifactId>
@@ -124,5 +153,29 @@
         <artifactId>javafaker</artifactId>
         <version>1.0.2</version>
     </dependency>
-</dependencies>
+    <dependency>
+        <groupId>org.mybatis</groupId>
+        <artifactId>mybatis</artifactId>
+        <version>3.5.7</version>
+    </dependency>
+    <!--  https://mvnrepository.com/artifact/org.mybatis.generator/mybatis-generator-core  -->
+    <dependency>
+        <groupId>org.mybatis.generator</groupId>
+        <artifactId>mybatis-generator-core</artifactId>
+        <version>1.4.0</version>
+    </dependency>
+    <!--  https://mvnrepository.com/artifact/org.postgresql/postgresql  -->
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>42.2.23</version>
+    </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <version>2.1</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
 </project>
